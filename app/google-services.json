@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "215922516003",
+    "firebase_url": "https://zubiissenger.firebaseio.com",
+    "project_id": "zubiissenger",
+    "storage_bucket": "zubiissenger.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215922516003:android:957621400c342205459196",
+        "android_client_info": {
+          "package_name": "com.zubiisoft.zubiissenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "215922516003-70uqqms2a4igafactl0evln0jm8qose9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zubiisoft.zubiissenger",
+            "certificate_hash": "e3f86c1dfa4f5a6c92168916d4e495d9db1b181b"
+          }
+        },
+        {
+          "client_id": "215922516003-vua5r823oi0337b3m2qk1il2bv5kov9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQpnQJuFGZdk_abHFnHp4dVj14UUMJ1IA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "215922516003-vua5r823oi0337b3m2qk1il2bv5kov9v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
