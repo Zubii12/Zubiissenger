@@ -166,6 +166,9 @@ public class MessagesActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Clear the data from mMessagesList and notify the adapter.
+     */
     private void clearMessagesList() {
         mMessagesList.clear();
         mRecyclerView.getAdapter().notifyDataSetChanged();
