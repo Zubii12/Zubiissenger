@@ -82,6 +82,16 @@ public class Database {
         void onRemovedMessagesCallbackDb(ArrayList<String> messages);
     }
 
+    public interface MessageCallbackDb{
+        void onMessageCallbackDb(String message);
+    }
+
+    public interface ChatMessageCallbackDb{
+        void onChatMessageCallbackDb(ChatMessage chatMessage);
+    }
+    public interface ExistMessagesCallbackDb{
+        void onExistMessagesCallbackDb(boolean existMessages);
+    }
     /**
      * Write an user in database.
      * @param user User class.
@@ -146,6 +156,95 @@ public class Database {
 
             }
         });
+    }
+
+    private void existMessagesAtSpecificIdChatInDatabase(final ExistMessagesCallbackDb existMessagesCallbackDb,String idChat) {
+        mDatabaseReference.child("chats").child(idChat).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child("messages").getValue() == null) {
+                    existMessagesCallbackDb.onExistMessagesCallbackDb(false);
+                } else {
+                    existMessagesCallbackDb.onExistMessagesCallbackDb(true);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+    }
+
+    public void readLastMessageAtSpecificIdChatFromDatabase(final MessageCallbackDb messageCallbackDb, final String idChat) {
+        existMessagesAtSpecificIdChatInDatabase(new ExistMessagesCallbackDb() {
+            @Override
+            public void onExistMessagesCallbackDb(boolean existMessages) {
+                if (existMessages) {
+                    mDatabaseReference.child("chats").child(idChat).child("messages").orderByChild("0").limitToLast(1).addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            ArrayList<String> cf = (ArrayList<String>) snapshot.getValue();
+                            Log.d(TAG, "onChildAdded: " + snapshot);
+                            //Log.d(TAG, "onChildAdded: " + cf);
+                            messageCallbackDb.onMessageCallbackDb(cf.get(2));
+                        }
+
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            Log.d(TAG, "onChildChanged: ");
+                        }
+
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                            Log.d(TAG, "onChildRemoved: ");
+                        }
+
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            Log.d(TAG, "onChildMoved: ");
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.d(TAG, "onCancelled: ");
+                        }
+                    });
+                } else {
+                    messageCallbackDb.onMessageCallbackDb("");
+                }
+            }
+        }, idChat);
+
+        /*
+        mDatabaseReference.child("chats").child(idChat).child("messages").orderByChild("0").limitToLast(1).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                ArrayList<String> cf = (ArrayList<String>) snapshot.getValue();
+                Log.d(TAG, "onChildAdded: " + snapshot);
+                Log.d(TAG, "onChildAdded: " + cf);
+                messageCallbackDb.onMessageCallbackDb(cf.get(2));
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Log.d(TAG, "onChildChanged: ");
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "onChildRemoved: ");
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Log.d(TAG, "onChildMoved: ");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, "onCancelled: ");
+            }
+        });
+         */
     }
 
     public void readUserFromDatabase(final UserCallbackDb userCallbackDb, final String uid) {
@@ -456,6 +555,44 @@ public class Database {
                     }
                 }
                 userCallbackDb.onUserCallbackDb(users);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void listenerOnChatMessages(final ChatMessageCallbackDb chatMessageCallbackDb) {
+        mDatabaseReference.child("chats").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                ChatMessage chatMessage = new ChatMessage();
+                chatMessage.setIdChat(snapshot.child("idChat").getValue(String.class));
+                chatMessage.setSender(snapshot.child("sender").getValue(String.class));
+                chatMessage.setReceiver(snapshot.child("receiver").getValue(String.class));
+
+                chatMessageCallbackDb.onChatMessageCallbackDb(chatMessage);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                ChatMessage chatMessage = new ChatMessage();
+                chatMessage.setIdChat(snapshot.child("idChat").getValue(String.class));
+                chatMessage.setSender(snapshot.child("sender").getValue(String.class));
+                chatMessage.setReceiver(snapshot.child("receiver").getValue(String.class));
+                chatMessageCallbackDb.onChatMessageCallbackDb(chatMessage);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
             }
 
             @Override

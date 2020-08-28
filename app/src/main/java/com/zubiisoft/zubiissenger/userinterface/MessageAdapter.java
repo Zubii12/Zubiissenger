@@ -51,13 +51,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     (R.layout.right_message_item, parent, false);
 
             return new MessageViewHolder(view, this);
-        } else if (viewType == MSG_TYPE_LEFT) {
+        } else  {
             View view = mInflater.inflate
                     (R.layout.left_message_item, parent, false);
 
             return new MessageViewHolder(view, this);
         }
-        return null;
     }
 
     @Override
@@ -79,10 +78,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public int getItemViewType(int position) {
-        if (mMessageList.get(position).get(1).equals(mUid)) {
-            return MSG_TYPE_RIGHT;
+        if (!(mMessageList == null)) {
+            if (mMessageList.get(position).get(1).equals(mUid)) {
+                return MSG_TYPE_RIGHT;
+            } else {
+                return MSG_TYPE_LEFT;
+            }
         } else {
-            return MSG_TYPE_LEFT;
+            return position;
         }
     }
 

@@ -71,11 +71,9 @@ public class AddConversationActivity extends AppCompatActivity implements
     private void finishActivity(String friendUid, String name, String avatar, String lastMessage) {
         Intent intent = new Intent();
         intent.putExtra("friendUid", friendUid);
-        Log.d(TAG, "finishActivity: " + friendUid);
         intent.putExtra("name", name);
         intent.putExtra("avatar", avatar);
         intent.putExtra("lastMessage", lastMessage);
-        Log.d(TAG, "finishActivity: " + intent.getStringExtra("friendUid"));
 
         setResult(RESULT_OK, intent);
         finish();
@@ -101,7 +99,7 @@ public class AddConversationActivity extends AppCompatActivity implements
                     mDatabase.readUserFromDatabase(new Database.UserCallbackDb() {
                         @Override
                         public void onUserCallbackDb(User user) {
-                            if (user != null) {
+                            if (user != null && !user.getChats().contains(uid)) {
                                 Conversation conversation = new Conversation(
                                         user.getAvatar(),
                                         user.getFirstName(),

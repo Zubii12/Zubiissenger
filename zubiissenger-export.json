@@ -1,0 +1,88 @@
+{
+  "users" : [ {
+    "avatar" : "noAvatar",
+    "chats" : {
+      "id_chat_0" : {
+        "idChat" : "id_chat_0",
+        "messages" : [ [ "11:10", "trimis0", "primit0" ], [ "11:11", "trimis1", "primit1" ], [ "11:12", "trimis2", "primit2" ] ],
+        "with" : "0"
+      },
+      "id_chat_1" : {
+        "idChat" : "id_chat_1",
+        "messages" : [ [ "11:10", "trimis", "primit" ] ],
+        "with" : "2"
+      }
+    },
+    "createdAt" : "12/05/2000",
+    "email" : "ion@0",
+    "firstName" : "firstName0",
+    "friendList" : [ "0", "0" ],
+    "lastName" : "lastName0",
+    "phone" : "00",
+    "uid" : "0"
+  }, {
+    "avatar" : "noAvatar",
+    "chats" : {
+      "id_chat_1" : {
+        "idChat" : "id_chat_1",
+        "messages" : [ [ "11:10", "trimis0", "primit0" ], [ "11:11", "trimis1", "primit1" ], [ "11:12", "trimis2", "primit2" ] ],
+        "with" : "1"
+      }
+    },
+    "createdAt" : "12/05/2001",
+    "email" : "ion@1",
+    "firstName" : "firstName1",
+    "friendList" : [ "1", "1" ],
+    "lastName" : "lastName1",
+    "phone" : "01",
+    "uid" : "1"
+  }, {
+    "avatar" : "noAvatar",
+    "chats" : {
+      "id_chat_2" : {
+        "idChat" : "id_chat_2",
+        "messages" : [ [ "11:10", "trimis0", "primit0" ], [ "11:11", "trimis1", "primit1" ], [ "11:12", "trimis2", "primit2" ] ],
+        "with" : "2"
+      }
+    },
+    "createdAt" : "12/05/2002",
+    "email" : "ion@2",
+    "firstName" : "firstName2",
+    "friendList" : [ "2", "2" ],
+    "lastName" : "lastName2",
+    "phone" : "02",
+    "uid" : "2"
+  }, {
+    "avatar" : "noAvatar",
+    "chats" : {
+      "id_chat_3" : {
+        "idChat" : "id_chat_3",
+        "messages" : [ [ "11:10", "trimis0", "primit0" ], [ "11:11", "trimis1", "primit1" ], [ "11:12", "trimis2", "primit2" ] ],
+        "with" : "3"
+      }
+    },
+    "createdAt" : "12/05/2003",
+    "email" : "ion@3",
+    "firstName" : "firstName3",
+    "friendList" : [ "3", "3" ],
+    "lastName" : "lastName3",
+    "phone" : "03",
+    "uid" : "3"
+  }, {
+    "avatar" : "noAvatar",
+    "chats" : {
+      "id_chat_4" : {
+        "idChat" : "id_chat_4",
+        "messages" : [ [ "11:10", "trimis0", "primit0" ], [ "11:11", "trimis1", "primit1" ], [ "11:12", "trimis2", "primit2" ] ],
+        "with" : "4"
+      }
+    },
+    "createdAt" : "12/05/2004",
+    "email" : "ion@4",
+    "firstName" : "firstName4",
+    "friendList" : [ "4", "4" ],
+    "lastName" : "lastName4",
+    "phone" : "04",
+    "uid" : "4"
+  } ]
+}

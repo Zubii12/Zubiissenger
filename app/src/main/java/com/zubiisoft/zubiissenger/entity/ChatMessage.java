@@ -25,7 +25,7 @@ public class ChatMessage {
     public String toString() {
         return "Chat{" +
                 "idChat='" + idChat + '\'' +
-                ", with='" + sender + '\'' +
+                ", sender='" + sender + '\'' +
                 ", receiver='" + receiver + '\'' +
                 ", messages=" + messages +
                 '}';

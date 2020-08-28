@@ -98,6 +98,9 @@ public class MessagesActivity extends AppCompatActivity {
         // Set the default layout for recycler view..
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
 
+        // RecyclerView resizing.
+        ((LinearLayoutManager)mRecyclerView.getLayoutManager()).setStackFromEnd(true);
+
         clearMessagesList();
         setMessagesInRecyclerView(mUid);
 

@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.zubiisoft.zubiissenger.MyApplication;
@@ -72,8 +71,10 @@ public class ConversationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
-        // Get the current context.
-        mContext = getApplicationContext();
+        // It doesn't work in API 23 when I give it as a parameter for RecyclerView
+        //mContext = getApplicationContext();
+
+        mContext = this;
 
         // Get an instance of Database.
         mDatabase = MyApplication.getDatabase();
@@ -90,22 +91,17 @@ public class ConversationActivity extends AppCompatActivity {
         // Get the RecyclerView.
         mRecyclerView = findViewById(R.id.conversations_recyclerView);
 
+        mConversationAdapter = new ConversationAdapter(mContext, mConversationList);
+
+        mRecyclerView.setAdapter(mConversationAdapter);
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
         // Set the user information for the activity.
-        //setUserInformation(uid);
+        setUserInformation(mUid);
 
         // Set the conversations in recycler view.
         setConversationsInRecyclerView(mUid);
-
-        //addConversationToTheList(mConversationList, 10);
-
-        // Create the adapter.
-        mConversationAdapter = new ConversationAdapter(mContext, mConversationList);
-
-        // Set the adapter to the recycler view.
-        mRecyclerView.setAdapter(mConversationAdapter);
-
-        // Set the default layout for recycler view..
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
 
         FloatingActionButton floatingActionButton =
                 findViewById(R.id.addConversation_floatingActionButton);
@@ -119,12 +115,8 @@ public class ConversationActivity extends AppCompatActivity {
             }
         });
 
-        if (mConversationAdapter.getItemCount() == 0) {
-            Toast.makeText(mContext, " I haven't found any new friends ", Toast.LENGTH_LONG).show();
-        }
-
+        setListenerOnMessages();
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -142,7 +134,7 @@ public class ConversationActivity extends AppCompatActivity {
             mDatabase.writeIdChatAtSpecificUserInDatabase(chatMessage);
             mDatabase.writeChatMessageInDatabase(chatMessage);
 
-            setConversationsInRecyclerView(mUid);
+            //setConversationsInRecyclerView(mUid);
         }
 
     }
@@ -196,7 +188,9 @@ public class ConversationActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onUserCallbackDb(ArrayList<User> users) { }
+            public void onUserCallbackDb(ArrayList<User> users) {
+
+            }
         }, uid);
 
     }
@@ -209,21 +203,70 @@ public class ConversationActivity extends AppCompatActivity {
         mDatabase.readChatsAtSpecificUserFromDatabase(new Database.ChatsCallbackDb() {
             @Override
             public void onChatsCallbackDb(ArrayList<ChatMessage> chatMessages, ArrayList<User> conversationsWithFriends) {
+
                 mConversationList.clear();
                 mRecyclerView.getAdapter().notifyItemRangeRemoved(0, mConversationList.size());
 
-                for (User user : conversationsWithFriends) {
+
+                for (final User user : conversationsWithFriends) {
+                    mDatabase.readIdChatAtSpecificUserAndFriendFromDatabase(new Database.IdChatCallbackDb() {
+                        @Override
+                        public void idChatCallbackDb(String idChat) {
+
+                            mConversationList.clear();
+                            mRecyclerView.getAdapter().notifyItemRangeRemoved(0, mConversationList.size());
+
+                            mDatabase.readLastMessageAtSpecificIdChatFromDatabase(new Database.MessageCallbackDb() {
+                                @Override
+                                public void onMessageCallbackDb(String message) {
+                                    mConversationList.addLast(new Conversation(
+                                            user.getAvatar(),
+                                            user.getFirstName(),
+                                            message,
+                                            user.getUid()));
+                                    mRecyclerView.getAdapter().notifyDataSetChanged();
+                                }
+                            }, idChat);
+                        }
+                    }, mUid, user.getUid());
+/*
+                    for (String idChatWithFriend : user.getChats()) {
+                        Log.d(TAG, "onChatsCallbackDb: + idChatWithFriend" + idChatWithFriend);
+                        mDatabase.readIdChatAtSpecificUserAndFriendFromDatabase(new Database.IdChatCallbackDb() {
+                            @Override
+                            public void idChatCallbackDb(String idChat) {
+                                mDatabase.readLastMessageAtSpecificIdChatFromDatabase(new Database.MessageCallbackDb() {
+                                    @Override
+                                    public void onMessageCallbackDb(String message) {
+                                        Log.d(TAG, "onMessageCallbackDb: " + message);
+                                        mConversationList.addLast(new Conversation(
+                                                user.getAvatar(),
+                                                user.getFirstName(),
+                                                message,
+                                                user.getUid()));
+                                        //mRecyclerView.getAdapter().notifyItemInserted(mConversationList.size() + 1);
+                                        mRecyclerView.getAdapter().notifyDataSetChanged();
+                                    }
+                                }, idChat);
+
+                            }
+                        },user.getUid(), idChatWithFriend);
+
+                    }
+*/
+                    /*
                     mConversationList.addLast(new Conversation(
                             user.getAvatar(),
                             user.getFirstName(),
                             "",
                             user.getUid()));
                     mRecyclerView.getAdapter().notifyItemInserted(mConversationList.size() + 1);
+
+                     */
                 }
             }
         }, uid);
     }
-
 
     @NonNull
     private String getRandomUid() {
@@ -244,5 +287,28 @@ public class ConversationActivity extends AppCompatActivity {
         }
 
         return String.valueOf(uid);
+    }
+
+    private void setListenerOnMessages() {
+        mDatabase.listenerOnChatMessages(new Database.ChatMessageCallbackDb() {
+            @Override
+            public void onChatMessageCallbackDb(final ChatMessage chatMessage) {
+                mDatabase.readUserFromDatabase(new Database.UserCallbackDb() {
+                    @Override
+                    public void onUserCallbackDb(final User user) {
+                        mDatabase.readLastMessageAtSpecificIdChatFromDatabase(new Database.MessageCallbackDb() {
+                            @Override
+                            public void onMessageCallbackDb(String message) {
+                                /*
+                                 */
+                            }
+                        }, chatMessage.getIdChat());
+                    }
+
+                    @Override
+                    public void onUserCallbackDb(ArrayList<User> users) { }
+                }, chatMessage.getReceiver());
+            }
+        });
     }
 }

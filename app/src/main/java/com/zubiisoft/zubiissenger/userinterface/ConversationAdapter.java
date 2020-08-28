@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.zubiisoft.zubiissenger.R;
 import com.zubiisoft.zubiissenger.entity.Conversation;
 
+
 import java.util.LinkedList;
 
 /**
@@ -87,27 +88,28 @@ public class ConversationAdapter extends
     @Override
     public void onBindViewHolder
             (@NonNull ConversationAdapter.ConversationViewHolder holder, int position) {
+
         // Retrieve the data for that position.
         final Conversation mCurrent = mConversationList.get(position);
 
+
         // Add the data to the view holder.
         RelativeLayout conversationItemView = holder.mConversationItemView;
+
         for (int conv = 0; conv < mConversationList.size(); conv++) {
             for (int i = 0; i < conversationItemView.getChildCount(); i++) {
                 if (conversationItemView.getChildAt(i) instanceof ImageView) {
-                    Log.d(TAG, "onBindViewHolder: ImageView - found");
+                    // TODO
                 } else if (conversationItemView.getChildAt(i) instanceof TextView) {
-                    if (conversationItemView.getChildAt(i) ==
-                            conversationItemView.getChildAt(i).
-                                    findViewById(R.id.name_textView)) {
-                        Log.d(TAG, "onBindViewHolder: EditText - name - found");
+                    if (conversationItemView.getChildAt(i) == conversationItemView
+                            .getChildAt(i).findViewById(R.id.name_textView)) {
+
                         ((TextView) conversationItemView.getChildAt(i)).
                                 setText(mCurrent.getName());
-                    } else if (conversationItemView.getChildAt(i) ==
-                            conversationItemView.getChildAt(i).
-                                    findViewById(R.id.lastMessage_textView)) {
-                        Log.d(TAG, "onBindViewHolder: EditText - lastMessage" +
-                                " - found");
+
+                    } else if (conversationItemView.getChildAt(i) == conversationItemView.
+                            getChildAt(i).findViewById(R.id.lastMessage_textView)) {
+;
                         ((TextView) conversationItemView.getChildAt(i)).
                                 setText(mCurrent.getLastMessage());
                     }
@@ -125,6 +127,7 @@ public class ConversationAdapter extends
         });
 
     }
+
     /**
      * Returns the total number of items in the data set held by the adapter.
      *
@@ -138,13 +141,16 @@ public class ConversationAdapter extends
     public static class ConversationViewHolder extends RecyclerView.ViewHolder {
         public final RelativeLayout mConversationItemView;
         final ConversationAdapter mAdapter;
+        public TextView textView;
 
         public ConversationViewHolder(@NonNull View itemView,
                                       ConversationAdapter adapter) {
             super(itemView);
-            mConversationItemView = itemView.findViewById
-                    (R.id.conversationItem_relativeLayout);
+            mConversationItemView =
+                    itemView.findViewById(R.id.conversationItem_relativeLayout);
+            textView = itemView.findViewById(R.id.name_textView);
             mAdapter = adapter;
+
         }
     }
 }
