@@ -95,8 +95,6 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's
-                            // information
                             Toast.makeText(mContext, "Authentication successful.",
                                     Toast.LENGTH_LONG).show();
 
@@ -125,7 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            Toast.makeText(mContext, "Authentication failed.",
+                            Toast.makeText(mContext, task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
                         }
 

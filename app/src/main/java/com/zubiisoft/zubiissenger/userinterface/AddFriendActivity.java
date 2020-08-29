@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -47,6 +48,20 @@ public class AddFriendActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_friend);
 
+        initInstances();
+        initRecyclerView();
+
+        setUsersInRecyclerView();
+    }
+
+    @Override
+    public void setNameCallback(@NonNull Intent intent) {
+        String friendUid = intent.getStringExtra("friendUid");
+        mDatabase.writeFriendAnSpecificUserInDatabase(mUid, friendUid);
+        Toast.makeText(mContext, "Friend successfully added ", Toast.LENGTH_SHORT).show();
+    }
+
+    private void initInstances() {
         mUid = MyApplication.getAuth().getCurrentUser().getUid();
 
         // Get the current context.
@@ -58,8 +73,9 @@ public class AddFriendActivity extends AppCompatActivity
         // Get the RecyclerView.
         mRecyclerView = findViewById(R.id.addFriend_recyclerView);
 
-        setUsersInRecyclerView();
+    }
 
+    private void initRecyclerView() {
         // Create the adapter.
         mAddFriendAdapter = new AddFriendAdapter(mContext, mUsersList, this);
 
@@ -68,43 +84,29 @@ public class AddFriendActivity extends AppCompatActivity
 
         // Set the default layout for recycler view..
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (mAddFriendAdapter.getItemCount() == 0 && mUsersList.size() == 0) {
-            Toast.makeText(mContext, " I haven't found any new friends ", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void setNameCallback(@NonNull User user) {
-        mDatabase.writeFriendAnSpecificUserInDatabase(mUid, user.getUid());
-        Toast.makeText(mContext, "Friend successfully added ", Toast.LENGTH_SHORT).show();
     }
 
     private void setUsersInRecyclerView() {
         mDatabase.readAllUsersAndFriendsAtSpecificUserFromDatabase(new Database.UserAndFriendCallback() {
             @Override
             public void onUserAndFriendCallback(ArrayList<User> users, ArrayList<String> friends) {
-                mUsersList.clear();
-                mRecyclerView.getAdapter().notifyItemRangeRemoved(0, mUsersList.size());
+                clearConversationList();
 
                 for (User user : users) {
-                    Log.d(TAG, "onUserAndFriendCallback: VERIF " + user.toString());
-                    Log.d(TAG, "onUserAndFriendCallback: chats " + user.getChats());
-                    Log.d(TAG, "onUserAndFriendCallback: " + user.getFriendList());
                     if (!friends.contains(user.getUid())) {
                         mUsersList.addLast(user);
-                        mRecyclerView.getAdapter().notifyItemInserted(mUsersList.size() + 1);
+                        mRecyclerView.getAdapter().notifyDataSetChanged();
                     }
                 }
-
             }
         }, mUid);
+    }
+    /**
+     * Clear the data from mUsersList and notify the adapter.
+     */
+    private void clearConversationList() {
+        mUsersList.clear();
+        mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
 }

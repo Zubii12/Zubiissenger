@@ -45,6 +45,15 @@ public class AddConversationActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_conversation);
 
+        initInstances();
+        initRecyclerView();
+
+        getSupportActionBar().setTitle("Add new conversation");
+
+        setConversationInRecyclerView(mUid);
+    }
+
+    private void initInstances() {
         // Get an instance of current context.
         mContext = getApplicationContext();
 
@@ -52,15 +61,14 @@ public class AddConversationActivity extends AppCompatActivity implements
 
         mUid = MyApplication.getAuth().getCurrentUser().getUid();
 
-        getSupportActionBar().setTitle("Add new conversation");
-
-        // Get an instance of recycler view.
         mRecyclerView = findViewById(R.id.addConversation_recyclerView);
+    }
 
-        setConversationInRecyclerView(mUid);
-
-        mAddConversationAdapter =
-                new AddConversationAdapter(mContext, mAddConversationList, this);
+    private void initRecyclerView() {
+        mAddConversationAdapter = new AddConversationAdapter(
+                mContext,
+                mAddConversationList,
+                this);
 
         mRecyclerView.setAdapter(mAddConversationAdapter);
 
@@ -107,8 +115,7 @@ public class AddConversationActivity extends AppCompatActivity implements
                                         friendUid);
 
                                 mAddConversationList.addLast(conversation);
-                                mRecyclerView.getAdapter().notifyItemChanged
-                                        (mAddConversationList.size() + 1);
+                                mRecyclerView.getAdapter().notifyDataSetChanged();
                             }
                         }
 

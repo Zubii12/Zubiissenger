@@ -1,6 +1,7 @@
 package com.zubiisoft.zubiissenger.userinterface;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,7 @@ public class AddFriendAdapter extends
     private Context mContext;
 
     public interface NameCallback {
-        void setNameCallback(User user);
+        void setNameCallback(Intent intent);
     }
 
     NameCallback mListener;
@@ -68,45 +69,24 @@ public class AddFriendAdapter extends
     public void onBindViewHolder(@NonNull final AddFriendViewHolder holder,
                                  final int position) {
 
-        final User mCurrent = mAddFriendList.get(position);
+        final User current = mAddFriendList.get(position);
 
         final RelativeLayout friendItemView = holder.mAddFriendItemView;
 
-        for (int conv = 0; conv < mAddFriendList.size(); conv++) {
-            for (int i = 0; i < friendItemView.getChildCount(); i++) {
-                if (friendItemView.getChildAt(i) instanceof ImageView){
-                    //Log.d(TAG, "onBindViewHolder: ImageView - avatar - found");
-                } else if (friendItemView.getChildAt(i) instanceof TextView) {
-                    if (friendItemView.getChildAt(i) == friendItemView.getChildAt(i).
-                            findViewById(R.id.name_textView)) {
-                        String name = mCurrent.getFirstName() + mCurrent.getLastName();
-                        ((TextView) friendItemView.getChildAt(i)).setText(name);
-                    } else if (friendItemView.getChildAt(i) ==
-                            friendItemView.getChildAt(i).
-                            findViewById(R.id.lastMessage_textView)) {
-                        ((TextView) friendItemView.getChildAt(i)).
-                        //       setText(mCurrent.getLastMessage());
-                        setVisibility(View.INVISIBLE);
-
-                    }
-                }
-            }
-        }
-
+        //holder.mAvatar TODO
+        String name = current.getFirstName() + current.getLastName();
+        holder.mName.setText(name);
 
         friendItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //mListener.setNameCallback(mAddFriendList.get(position));
-                Database mDatabase = MyApplication.getDatabase();
-                String uidFriend = mCurrent.getUid();
-                String uidUser = MyApplication.getAuth().getCurrentUser().getUid();
-                mDatabase.writeFriendAnSpecificUserInDatabase(uidUser, uidFriend);
+                Intent intent = new Intent();
+                intent.putExtra("friendUid", current.getUid());
 
-                mAddFriendList.remove(mCurrent);
-
+                mAddFriendList.remove(current);
                 holder.mAdapter.notifyItemRemoved(position);
 
+                mListener.setNameCallback(intent);
             }
         });
     }
@@ -117,20 +97,18 @@ public class AddFriendAdapter extends
     }
 
     public static class AddFriendViewHolder extends RecyclerView.ViewHolder{
-        public final RelativeLayout mAddFriendItemView;
-
-        protected ImageView avatar;
-        protected TextView name;
-
+        protected final RelativeLayout mAddFriendItemView;
+        protected ImageView mAvatar;
+        protected TextView mName;
         protected final AddFriendAdapter mAdapter;
 
         public AddFriendViewHolder(@NonNull View itemView, AddFriendAdapter adapter) {
             super(itemView);
-            mAddFriendItemView = itemView.findViewById(R.id.conversationItem_relativeLayout);
+            mAddFriendItemView =
+                    itemView.findViewById(R.id.conversationItem_relativeLayout);
+            mAvatar = itemView.findViewById(R.id.avatar_imageView);
+            mName = itemView.findViewById(R.id.name_textView);
             mAdapter = adapter;
-
-            avatar = itemView.findViewById(R.id.avatar_imageView);
-            name = itemView.findViewById(R.id.name_textView);
         }
     }
 }

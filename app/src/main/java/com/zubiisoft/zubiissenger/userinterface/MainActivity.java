@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         // Get an instance of Database.
         mDatabase = MyApplication.getDatabase();
 
+        // Get an instance of Context.
         mContext = getApplicationContext();
     }
 
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view The Button view.
      */
     public void startLoginButton(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(mContext, LoginActivity.class);
         startActivity(intent);
     }
 
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view The Button view.
      */
     public void startRegisterButton(View view) {
-        Intent intent = new Intent(this, RegisterActivity.class);
+        Intent intent = new Intent(mContext, RegisterActivity.class);
         startActivity(intent);
     }
 }

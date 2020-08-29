@@ -30,7 +30,6 @@ public class ConversationAdapter extends
     private LinkedList<Conversation> mConversationList;
     private final LayoutInflater mInflater;
     private Context mContext;
-    private String mWith;
 
     /**
      * Constructor for adapter.
@@ -90,12 +89,15 @@ public class ConversationAdapter extends
             (@NonNull ConversationAdapter.ConversationViewHolder holder, int position) {
 
         // Retrieve the data for that position.
-        final Conversation mCurrent = mConversationList.get(position);
+        final Conversation current = mConversationList.get(position);
 
-
-        // Add the data to the view holder.
         RelativeLayout conversationItemView = holder.mConversationItemView;
 
+        //holder.mAvatar; TODO
+        holder.mName.setText(current.getName());
+        holder.mLastMessage.setText(current.getLastMessage());
+
+        /*
         for (int conv = 0; conv < mConversationList.size(); conv++) {
             for (int i = 0; i < conversationItemView.getChildCount(); i++) {
                 if (conversationItemView.getChildAt(i) instanceof ImageView) {
@@ -105,23 +107,25 @@ public class ConversationAdapter extends
                             .getChildAt(i).findViewById(R.id.name_textView)) {
 
                         ((TextView) conversationItemView.getChildAt(i)).
-                                setText(mCurrent.getName());
+                                setText(current.getName());
 
                     } else if (conversationItemView.getChildAt(i) == conversationItemView.
                             getChildAt(i).findViewById(R.id.lastMessage_textView)) {
 ;
                         ((TextView) conversationItemView.getChildAt(i)).
-                                setText(mCurrent.getLastMessage());
+                                setText(current.getLastMessage());
                     }
                 }
             }
         }
 
+         */
+
         conversationItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, MessagesActivity.class);
-                intent.putExtra("with", mCurrent.getWith());
+                intent.putExtra("with", current.getWith());
                 mContext.startActivity(intent);
             }
         });
@@ -139,16 +143,21 @@ public class ConversationAdapter extends
     }
 
     public static class ConversationViewHolder extends RecyclerView.ViewHolder {
-        public final RelativeLayout mConversationItemView;
-        final ConversationAdapter mAdapter;
-        public TextView textView;
+        protected final RelativeLayout mConversationItemView;
+        protected final ConversationAdapter mAdapter;
+        protected ImageView mAvatar;
+        protected TextView mName;
+        protected TextView mLastMessage;
 
         public ConversationViewHolder(@NonNull View itemView,
                                       ConversationAdapter adapter) {
             super(itemView);
             mConversationItemView =
                     itemView.findViewById(R.id.conversationItem_relativeLayout);
-            textView = itemView.findViewById(R.id.name_textView);
+            mAvatar = itemView.findViewById(R.id.avatar_imageView);
+            mName = itemView.findViewById(R.id.name_textView);
+            mLastMessage = itemView.findViewById(R.id.lastMessage_textView);
+
             mAdapter = adapter;
 
         }

@@ -60,38 +60,21 @@ public class AddConversationAdapter extends
 
     @Override
     public void onBindViewHolder(@NonNull AddConversationViewHolder holder, int position) {
-        final Conversation mCurrent = mAddConversationList.get(position);
+        final Conversation current = mAddConversationList.get(position);
 
         RelativeLayout conversationItemView = holder.mAddConversationItemView;
-        for (int conv = 0; conv < mAddConversationList.size(); conv++) {
-            for (int i = 0; i < conversationItemView.getChildCount(); i++) {
-                if (conversationItemView.getChildAt(i) instanceof ImageView){
-                    Log.d(TAG, "onBindViewHolder: ImageView - avatar - found");
-                } else if (conversationItemView.getChildAt(i) instanceof TextView) {
-                    if (conversationItemView.getChildAt(i) ==
-                            conversationItemView.getChildAt(i).
-                                    findViewById(R.id.name_textView)) {
-                        ((TextView) conversationItemView.getChildAt(i)).
-                                setText(mCurrent.getName());
-                    } else if (conversationItemView.getChildAt(i)
-                            == conversationItemView.getChildAt(i).
-                            findViewById(R.id.lastMessage_textView)) {
-                        ((TextView) conversationItemView.getChildAt(i)).
-                                setText(mCurrent.getLastMessage());
-                    }
-                }
-            }
-        }
+
+        //holder.mAvatar TODO
+        holder.mName.setText(current.getName());
 
         conversationItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                intent.putExtra("friendUid", mCurrent.getWith());
-                Log.d(TAG, "onClick: " + mCurrent.getWith());
-                intent.putExtra("name", mCurrent.getName());
-                intent.putExtra("avatar", mCurrent.getAvatarImage());
-                intent.putExtra("lastMessage", mCurrent.getLastMessage());
+                intent.putExtra("friendUid", current.getWith());
+                intent.putExtra("name", current.getName());
+                intent.putExtra("avatar", current.getAvatarImage());
+                intent.putExtra("lastMessage", current.getLastMessage());
 
                 mListener.onIntentCallback(intent);
             }
@@ -105,14 +88,18 @@ public class AddConversationAdapter extends
     }
 
     public static class AddConversationViewHolder extends RecyclerView.ViewHolder {
-        public final RelativeLayout mAddConversationItemView;
-        final AddConversationAdapter mAdapter;
+        protected final RelativeLayout mAddConversationItemView;
+        protected ImageView mAvatar;
+        protected TextView mName;
+        protected final AddConversationAdapter mAdapter;
 
         public AddConversationViewHolder(@NonNull View itemView,
                                          AddConversationAdapter adapter) {
             super(itemView);
-            mAddConversationItemView = itemView.findViewById
-                    (R.id.conversationItem_relativeLayout);
+            mAddConversationItemView =
+                    itemView.findViewById(R.id.conversationItem_relativeLayout);
+            mAvatar = itemView.findViewById(R.id.avatar_imageView);
+            mName = itemView.findViewById(R.id.name_textView);
             mAdapter = adapter;
         }
     }

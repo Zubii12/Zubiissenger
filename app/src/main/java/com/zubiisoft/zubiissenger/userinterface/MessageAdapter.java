@@ -5,18 +5,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.zubiisoft.zubiissenger.MyApplication;
+
 import com.zubiisoft.zubiissenger.R;
-import com.zubiisoft.zubiissenger.database.Database;
-import com.zubiisoft.zubiissenger.entity.User;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,14 +29,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private final LayoutInflater mInflater;
 
-    private Database mDatabase = MyApplication.getDatabase();
-    private FirebaseAuth mAuth = MyApplication.getAuth();
-    private FirebaseUser mUser = mAuth.getCurrentUser();
-    private String mUid = mUser.getUid();
+    private String mUid;
 
-    public MessageAdapter(Context context, LinkedList<ArrayList<String>> messages) {
+    public MessageAdapter(Context context, LinkedList<ArrayList<String>> messages, String uid) {
         mInflater = LayoutInflater.from(context);
         mMessageList = messages;
+        mUid = uid;
     }
 
     @NonNull
@@ -62,13 +57,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageAdapter.MessageViewHolder holder,
                                  int position) {
-        ArrayList<String> mCurrent = mMessageList.get(position);
+        ArrayList<String> current = mMessageList.get(position);
 
         RelativeLayout messageItemView = holder.mMessageItemView;
 
-        TextView textview = messageItemView.findViewById(R.id.message_textView);
-        textview.setText(mCurrent.get(2));
-
+        holder.mMessage.setText(current.get(2));
     }
 
     @Override
@@ -90,12 +83,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        public final RelativeLayout mMessageItemView;
-        final MessageAdapter mAdapter;
+        protected final RelativeLayout mMessageItemView;
+        protected ImageView mAvatar;
+        protected TextView mMessage;
+        protected final MessageAdapter mAdapter;
+
 
         public MessageViewHolder(@NonNull View itemView, MessageAdapter adapter) {
             super(itemView);
             mMessageItemView = itemView.findViewById(R.id.message_relativeLayout);
+            mAvatar = itemView.findViewById(R.id.avatar_imageView);
+            mMessage = itemView.findViewById(R.id.message_textView);
             mAdapter = adapter;
         }
     }

@@ -22,6 +22,7 @@ import com.zubiisoft.zubiissenger.database.Database;
 import com.zubiisoft.zubiissenger.entity.ChatMessage;
 import com.zubiisoft.zubiissenger.entity.Conversation;
 import com.zubiisoft.zubiissenger.entity.User;
+import com.zubiisoft.zubiissenger.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -57,9 +58,9 @@ public class ConversationActivity extends AppCompatActivity {
     // Instance of context.
     private ActionBar mActionBar;
 
-    private LinkedList<Conversation> mFriendList = new LinkedList<>();
-
     private String mUid;
+
+    private FloatingActionButton floatingActionButton;
 
     /**
      * Create the content view, inflate the activity UI.
@@ -71,40 +72,15 @@ public class ConversationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
-        // It doesn't work in API 23 when I give it as a parameter for RecyclerView
-        //mContext = getApplicationContext();
-
-        mContext = this;
-
-        // Get an instance of Database.
-        mDatabase = MyApplication.getDatabase();
-
-        // Get an instance of Actionbar.
-        mActionBar = getSupportActionBar();
-
-        // User id.
-        mUid = MyApplication.getAuth().getCurrentUser().getUid();
-
-        //
-        mActionBar.setTitle(mUid);
-
-        // Get the RecyclerView.
-        mRecyclerView = findViewById(R.id.conversations_recyclerView);
-
-        mConversationAdapter = new ConversationAdapter(mContext, mConversationList);
-
-        mRecyclerView.setAdapter(mConversationAdapter);
-
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-
-        // Set the user information for the activity.
-        setUserInformation(mUid);
+        //Init methods.
+        initInstances();
+        initRecyclerView();
 
         // Set the conversations in recycler view.
         setConversationsInRecyclerView(mUid);
 
-        FloatingActionButton floatingActionButton =
-                findViewById(R.id.addConversation_floatingActionButton);
+        // Set the user information for the activity.
+        setUserInformation(mUid);
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,8 +90,6 @@ public class ConversationActivity extends AppCompatActivity {
 
             }
         });
-
-        setListenerOnMessages();
     }
 
     @Override
@@ -129,12 +103,10 @@ public class ConversationActivity extends AppCompatActivity {
 
             ArrayList<ArrayList<String>> messages = new ArrayList<>();
 
-            ChatMessage chatMessage = new ChatMessage(getRandomUid(), mUid, receiver, messages);
+            ChatMessage chatMessage = new ChatMessage(Utils.getRandomUid(), mUid, receiver, messages);
 
             mDatabase.writeIdChatAtSpecificUserInDatabase(chatMessage);
             mDatabase.writeChatMessageInDatabase(chatMessage);
-
-            //setConversationsInRecyclerView(mUid);
         }
 
     }
@@ -159,9 +131,7 @@ public class ConversationActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
         int id = item.getItemId();
-
         switch (id){
             case R.id.addNewFriend_item:
                 startActivity(new Intent(mContext, AddFriendActivity.class));
@@ -174,6 +144,45 @@ public class ConversationActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initInstances() {
+        // It doesn't work in API 23 when I give it as a parameter for RecyclerView
+        //mContext = getApplicationContext();
+
+        mContext = this;
+
+        // Get an instance of Database.
+        mDatabase = MyApplication.getDatabase();
+
+        // Get an instance of Actionbar.
+        mActionBar = getSupportActionBar();
+
+        // User id.
+        mUid = MyApplication.getAuth().getCurrentUser().getUid();
+
+        // Get the RecyclerView.
+        mRecyclerView = findViewById(R.id.conversations_recyclerView);
+
+        // Get an instance of FloatingActionButton.
+        floatingActionButton = findViewById(R.id.addConversation_floatingActionButton);
+    }
+
+    private void initRecyclerView() {
+        mConversationAdapter = new ConversationAdapter(mContext, mConversationList);
+
+        mRecyclerView.setAdapter(mConversationAdapter);
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+    }
+
+    /**
+     * Clear the data from mConversationList and notify the adapter.
+     */
+    private void clearConversationList() {
+        mConversationList.clear();
+        mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -203,19 +212,12 @@ public class ConversationActivity extends AppCompatActivity {
         mDatabase.readChatsAtSpecificUserFromDatabase(new Database.ChatsCallbackDb() {
             @Override
             public void onChatsCallbackDb(ArrayList<ChatMessage> chatMessages, ArrayList<User> conversationsWithFriends) {
-
-                mConversationList.clear();
-                mRecyclerView.getAdapter().notifyItemRangeRemoved(0, mConversationList.size());
-
-
+                clearConversationList();
                 for (final User user : conversationsWithFriends) {
                     mDatabase.readIdChatAtSpecificUserAndFriendFromDatabase(new Database.IdChatCallbackDb() {
                         @Override
                         public void idChatCallbackDb(String idChat) {
-
-                            mConversationList.clear();
-                            mRecyclerView.getAdapter().notifyItemRangeRemoved(0, mConversationList.size());
-
+                            clearConversationList();
                             mDatabase.readLastMessageAtSpecificIdChatFromDatabase(new Database.MessageCallbackDb() {
                                 @Override
                                 public void onMessageCallbackDb(String message) {
@@ -229,86 +231,8 @@ public class ConversationActivity extends AppCompatActivity {
                             }, idChat);
                         }
                     }, mUid, user.getUid());
-/*
-                    for (String idChatWithFriend : user.getChats()) {
-                        Log.d(TAG, "onChatsCallbackDb: + idChatWithFriend" + idChatWithFriend);
-                        mDatabase.readIdChatAtSpecificUserAndFriendFromDatabase(new Database.IdChatCallbackDb() {
-                            @Override
-                            public void idChatCallbackDb(String idChat) {
-                                mDatabase.readLastMessageAtSpecificIdChatFromDatabase(new Database.MessageCallbackDb() {
-                                    @Override
-                                    public void onMessageCallbackDb(String message) {
-                                        Log.d(TAG, "onMessageCallbackDb: " + message);
-                                        mConversationList.addLast(new Conversation(
-                                                user.getAvatar(),
-                                                user.getFirstName(),
-                                                message,
-                                                user.getUid()));
-                                        //mRecyclerView.getAdapter().notifyItemInserted(mConversationList.size() + 1);
-                                        mRecyclerView.getAdapter().notifyDataSetChanged();
-                                    }
-                                }, idChat);
-
-                            }
-                        },user.getUid(), idChatWithFriend);
-
-                    }
-*/
-                    /*
-                    mConversationList.addLast(new Conversation(
-                            user.getAvatar(),
-                            user.getFirstName(),
-                            "",
-                            user.getUid()));
-                    mRecyclerView.getAdapter().notifyItemInserted(mConversationList.size() + 1);
-
-                     */
                 }
             }
         }, uid);
-    }
-
-    @NonNull
-    private String getRandomUid() {
-        int length = 28;
-
-        String symbol = "-/.^&*_!@%=+>)";
-        String capLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String smallLetter = "abcdefghijklmnopqrstuvwxyz";
-        String numbers = "0123456789";
-        String finalString =  capLetter + smallLetter + numbers;
-
-        Random random = new Random();
-
-        char[] uid = new char[length];
-
-        for (int i = 0; i < length; i++) {
-            uid[i] = finalString.charAt(random.nextInt(finalString.length()));
-        }
-
-        return String.valueOf(uid);
-    }
-
-    private void setListenerOnMessages() {
-        mDatabase.listenerOnChatMessages(new Database.ChatMessageCallbackDb() {
-            @Override
-            public void onChatMessageCallbackDb(final ChatMessage chatMessage) {
-                mDatabase.readUserFromDatabase(new Database.UserCallbackDb() {
-                    @Override
-                    public void onUserCallbackDb(final User user) {
-                        mDatabase.readLastMessageAtSpecificIdChatFromDatabase(new Database.MessageCallbackDb() {
-                            @Override
-                            public void onMessageCallbackDb(String message) {
-                                /*
-                                 */
-                            }
-                        }, chatMessage.getIdChat());
-                    }
-
-                    @Override
-                    public void onUserCallbackDb(ArrayList<User> users) { }
-                }, chatMessage.getReceiver());
-            }
-        });
     }
 }

@@ -41,6 +41,7 @@ public class MessagesActivity extends AppCompatActivity {
     private Context mContext;
 
     private EditText mMessage;
+
     private ImageButton mSendMessage;
 
     private final ChatMessage mChat = new ChatMessage();
@@ -70,36 +71,8 @@ public class MessagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
 
-        // Get the current context.
-        mContext = getApplicationContext();
-
-        // Get an instance of Database.
-        mDatabase = MyApplication.getDatabase();
-
-        // Get an instance of Actionbar.
-        mActionBar = getSupportActionBar();
-
-        mMessage = findViewById(R.id.message_editText);
-        mSendMessage = findViewById(R.id.sendMessage_imageButton);
-        mRecyclerView = findViewById(R.id.messages_recyclerView);
-
-        // User id.
-        mUid = MyApplication.getAuth().getCurrentUser().getUid();
-
-        // Friend id.
-        mWith = getIntent().getStringExtra("with");
-
-        // Create the adapter.
-        mMessageAdapter = new MessageAdapter(mContext, mMessagesList);
-
-        // Set the adapter to the recycler view.
-        mRecyclerView.setAdapter(mMessageAdapter);
-
-        // Set the default layout for recycler view..
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-
-        // RecyclerView resizing.
-        ((LinearLayoutManager)mRecyclerView.getLayoutManager()).setStackFromEnd(true);
+        initInstances();
+        initRecyclerView();
 
         clearMessagesList();
         setMessagesInRecyclerView(mUid);
@@ -143,6 +116,45 @@ public class MessagesActivity extends AppCompatActivity {
         });
     }
 
+    private void initInstances() {
+        // Get the current context.
+        mContext = getApplicationContext();
+
+        // Get an instance of Database.
+        mDatabase = MyApplication.getDatabase();
+
+        // Get an instance of Actionbar.
+        mActionBar = getSupportActionBar();
+
+        mMessage = findViewById(R.id.message_editText);
+        mSendMessage = findViewById(R.id.sendMessage_imageButton);
+        mRecyclerView = findViewById(R.id.messages_recyclerView);
+
+        // User id.
+        mUid = MyApplication.getAuth().getCurrentUser().getUid();
+
+        // Friend id.
+        mWith = getIntent().getStringExtra("with");
+
+    }
+
+    private void initRecyclerView() {
+        // Create the adapter.
+        mMessageAdapter = new MessageAdapter(mContext, mMessagesList, mUid);
+
+        // Set the adapter to the recycler view.
+        mRecyclerView.setAdapter(mMessageAdapter);
+
+        // Set the default layout for recycler view..
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+        // RecyclerView resizing.
+        ((LinearLayoutManager)mRecyclerView.getLayoutManager()).setStackFromEnd(true);
+
+
+
+    }
+
     private void setMessagesInRecyclerView(String uid){
         mDatabase.readIdChatAtSpecificUserAndFriendFromDatabase(new Database.IdChatCallbackDb() {
             @Override
@@ -152,7 +164,9 @@ public class MessagesActivity extends AppCompatActivity {
                     public void onAddMessagesCallbackDb(ArrayList<String> messages) {
                         mMessagesList.addLast(messages);
                         mRecyclerView.getAdapter().notifyDataSetChanged();
+                        mRecyclerView.getLayoutManager().scrollToPosition(mMessagesList.size());
                     }
+
                     @Override
                     public void onRemovedMessagesCallbackDb(ArrayList<String> messages) {
                         if (mMessagesList.contains(messages)) {
@@ -173,30 +187,4 @@ public class MessagesActivity extends AppCompatActivity {
         mMessagesList.clear();
         mRecyclerView.getAdapter().notifyDataSetChanged();
     }
-
-    /*
-    private void setMessagesInRecyclerView(String uid) {
-        mDatabase.readChatMessageAtSpecificUserFromDatabase(new Database.ChatCallbackDb() {
-            @Override
-            public void onChatCallbackDb(ChatMessage chatMessage, User friend) {
-
-                if (chatMessage.getMessages() != null) {
-                    mMessagesList.clear();
-                    mRecyclerView.getAdapter().notifyDataSetChanged();
-                    //mRecyclerView.getAdapter().notifyItemRangeRemoved(0, mMessagesList.size());
-
-                    ArrayList<ArrayList<String>> messages = chatMessage.getMessages();
-
-                    for (ArrayList<String> mess : messages) {
-                        Log.d(TAG, "onChatCallbackDb: " + mess);
-                        mMessagesList.addLast(mess);
-                        //mRecyclerView.getAdapter().notifyItemInserted(mMessagesList.size() + 1);
-                        mRecyclerView.getAdapter().notifyDataSetChanged();
-
-                    }
-                }
-            }
-        }, uid, mWith);
-    }
-    */
 }
